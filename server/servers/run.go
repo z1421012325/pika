@@ -1,10 +1,12 @@
 package servers
 
 import (
-
 	// init db
-	"github.com/gin-gonic/gin"
 	_ "pika/server/db"
+
+	handler "pika/server/handlers"
+
+	"github.com/gin-gonic/gin"
 
 )
 
@@ -17,91 +19,96 @@ func Run(address string){
 	userGroup := server.Group("/user")
 	{
 		// /user/login		登录
-		userGroup.POST("/login",nil)
+		userGroup.POST("/login",handler.UserLogin)
 		// /user/registry	注册
-		userGroup.POST("/registry",nil)
+		userGroup.POST("/registry",handler.UserRegistry)
 	}
 
 	// 下面的请求都需要通过验证是否登录用户中间件
 	server.Use(nil)
 	{
 		// /search   查询
-		server.GET("/search",nil)
-		// 推荐本子
-		server.GET("/recommend",nil)
+		server.GET("/search",handler.Search)
+		// recommend 推荐本子
+		server.GET("/recommend",handler.Recommend)
 
 
 		// /user/collection 查询收藏本子
-		userGroup.GET("/collection",nil)
-		// /user/commit		查询评论
-		userGroup.GET("/commit",nil)
+		userGroup.GET("/collection",handler.UserCollection)
+		// /user/commits		查询用户评论
+		userGroup.GET("/commits",handler.UserCommits)
+		// /user/commit/reply		查询层级评论的回复评论
+		userGroup.GET("/commit/reply",handler.UserCommitReply)
 		// /user/info 		查询用户信息
-		userGroup.GET("/info",nil)
+		userGroup.GET("/info",handler.UserInfo)
 
 		// /user/out		退出登录
-		userGroup.POST("/out",nil)
+		userGroup.POST("/out",handler.UserOut)
 	}
 
 	// 本子
 	noteBookGroup := server.Group("/benzi")
 	{
-		// 签名url
-		noteBookGroup.POST("/sign",nil)
-		// 上传本子
-		noteBookGroup.POST("/upload",nil)
-		// 删除本子
-		noteBookGroup.DELETE("/del",nil)
+		// /benzi/sign 签名url
+		noteBookGroup.POST("/sign",handler.SignUploadUrl)
+		//  /benzi/upload 上传本子
+		noteBookGroup.POST("/upload",handler.Upload)
+		// /benzi/del 删除本子
+		noteBookGroup.DELETE("/del",handler.DelBenzi)
 
-		// 点赞本子
-		noteBookGroup.POST("/add/like",nil)
-		// 删除点赞
-		noteBookGroup.DELETE("/del/like",nil)
+		// /benzi/add/like 点赞本子
+		noteBookGroup.POST("/add/like",handler.AddLike)
+		// /benzi/del/like删除点赞
+		noteBookGroup.DELETE("/del/like",handler.DelLike)
 
-		// 添加收藏
-		noteBookGroup.POST("/add/collection",nil)
-		// 删除收藏
-		noteBookGroup.DELETE("/del/collection",nil)
+		// /benzi/add/collection  添加收藏
+		noteBookGroup.POST("/add/collection",handler.AddCollection)
+		// /benzi/del/collection  删除收藏
+		noteBookGroup.DELETE("/del/collection",handler.DelCollection)
 
 
-		// 查询本子id
-		noteBookGroup.GET("/id",nil)
-		// 本子图片
-		noteBookGroup.GET("/",nil)
+		// 查询本子id  	返回数据含有观看记录,是否点赞,收藏,点赞数,评论数
+		// /benzi/b_id=4513213
+		noteBookGroup.GET("/",handler.SearchBenzi)		// query参数 b_id
+		// /benzi/id   本子图片
+		noteBookGroup.GET("/id",handler.BenziImage)		// query参数 b_id
 		// /benzi/insert/commit  	本子中添加评论
-		noteBookGroup.POST("/insert/commit",nil)
+		noteBookGroup.POST("/insert/commit",handler.InsertCommit)
 		// /benzi/query/commit		查询本子评论
-		noteBookGroup.GET("/query/commit",nil)
+		noteBookGroup.GET("/query/commit",handler.QueryCommit)
 
 	}
 
 	// tag标签
 	tagGroup := server.Group("/tag")
 	{
-		// 添加tag
-		tagGroup.POST("/add",nil)
-		// 删除tag
-		tagGroup.DELETE("/del",nil)
-		// 查看个人添加的tag
-		tagGroup.GET("/user/add",nil)
-		// 查看所有tag
-		tagGroup.GET("/all/tag",nil)
+		// /tag/add  添加tag
+		tagGroup.POST("/add",handler.TagAdd)
+		// /tag/del  删除tag
+		tagGroup.DELETE("/del",handler.TagDel)
+		// /tag/user/up 查看上传人添加的tag
+		tagGroup.GET("/user/up",handler.TagUserUp)
+		// /tag/all 查看所有tag
+		tagGroup.GET("/all",handler.TagAll)
 	}
 
 
 	adminGroup := server.Group("/admin")
 	{
-		// 注册用户
-		// 删除用户
-		// 更改权限
-		// 获取用户,上传人,管理员列表
-		// 获取用户,上传人,管理员信息
-		adminGroup.GET("/")
+
+		// 通过用户注册  /admin/verify/unregistry
+		adminGroup.POST("/verify/unregistry",handler.AdminVerifyUnregistry)
+		// 查看等待通过注册用户	/admin/query/unregistry
+		adminGroup.GET("/query/unregistry",handler.AdminQueryUnregistry)
+		// 冻结用户	/admin/frozen/user
+		adminGroup.DELETE("/frozen/user",handler.AdminFrozenUser)
+		// 更改权限	/admin/change/grade
+		adminGroup.POST("/change/grade",handler.AdminChangeGrade)
+		// 获取用户,上传人,管理员列表	/admin/query/user/info
+		adminGroup.GET("/query/user/info",handler.AdminQueryUserInfo)
+		// 获取用户,上传人,管理员信息	/admin/query/users
+		adminGroup.GET("/query/users",handler.AdminQueryUsers)
 	}
-
-
-
-
-
 
 	err := server.Run(address)
 	if err != nil {
