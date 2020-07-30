@@ -1,0 +1,169 @@
+
+CREATE database pika;
+use test2;
+
+create table `grade` (
+`g_id` INT AUTO_INCREMENT PRIMARY KEY,
+`_explain` VARCHAR(20) COMMENT '1,站主 2,管理员 3,上传人员 4,普通用户'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+INSERT INTO grade (_explain) VALUES ("站主");
+INSERT INTO grade (_explain) VALUES ("管理员");
+INSERT INTO grade (_explain) VALUES ("上传人员");
+INSERT INTO grade (_explain) VALUES ("普通用户");
+
+
+create table `users` (
+`u_id` INT AUTO_INCREMENT PRIMARY KEY,
+`nickname` VARCHAR(20) NOT NULL,
+`username` VARCHAR(20) NOT NULL,
+`pswd` VARCHAR(255) NOT NULL,
+`create_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '用户创建时间',
+`grade_level` INT NOT NULL COMMENT '用户等级 grade表外键',
+`verify_at` DATETIME COMMENT '上传人账号通过注册时间',
+`exec_pass` INT COMMENT '验证账号通过执行人id  ',
+`delete_id` INT COMMENT '删除账号执行人id',
+`delete_at` DATETIME,
+UNIQUE KEY `_username` (`username`),
+CONSTRAINT `_grade` FOREIGN KEY (`grade_level`) REFERENCES `grade` (`g_id`)
+)ENGINE=InnoDB AUTO_INCREMENT=100000 DEFAULT CHARSET=utf8;
+
+
+
+CREATE TABLE `benzi` (
+`b_id` INT AUTO_INCREMENT PRIMARY KEY,
+`title` VARCHAR(100) NOT NULL,
+`b_cover` VARCHAR(255) NOT NULL,
+`author` VARCHAR(20) DEFAULT NULL,
+`upload_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间  ',
+`updata_at` DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更行时间  ',
+`upload_id` INT NOT NULL COMMENT '上传人id  ',
+`delete_id` INT NOT NULL COMMENT '删除id  ',
+UNIQUE KEY `_title` (`title`),
+UNIQUE KEY `_author` (`author`),
+
+CONSTRAINT `_upload_id` FOREIGN KEY (`upload_id`) REFERENCES `users` (`u_id`),
+CONSTRAINT `_delete_id` FOREIGN KEY (`delete_id`) REFERENCES `users` (`u_id`)
+
+) ENGINE=InnoDB AUTO_INCREMENT=10000  DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `benzi_img` (
+`img_id` int AUTO_INCREMENT PRIMARY KEY,
+`b_id` INT NOT NULL,
+`b_url` VARCHAR(255) NOT NULL,
+`chapter_id` INT DEFAULT 0 COMMENT '章节id',
+`chapter_name` VARCHAR(10) DEFAULT "第一话" COMMENT '章节名',
+CONSTRAINT `_b_id` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `users_to_comments` (
+`b_id` INT NOT NULL,
+`u_id` INT NOT NULL,
+UNIQUE INDEX `b_u_id` (`b_id`,`u_id`),
+CONSTRAINT `_b_id_1` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`),
+CONSTRAINT `_u_id_1` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `comments` (
+`c_id` INT AUTO_INCREMENT PRIMARY KEY COMMENT '评论id',
+`b_id` INT NOT NULL COMMENT '本子id',
+`u_id` INT NOT NULL COMMENT '用户id',
+`comment` VARCHAR(150) NOT NULL,
+`create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+`delete_at` DATETIME,
+UNIQUE INDEX `_c_id_4` (`c_id`),
+UNIQUE INDEX `_u_id_4` (`u_id`),
+UNIQUE INDEX `_b_id_4` (`b_id`),
+CONSTRAINT `_b_id_2` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`),
+CONSTRAINT `_u_id_2` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `reply_comments` (
+`reply_id` INT AUTO_INCREMENT PRIMARY KEY COMMENT '回复id',
+`c_id` INT COMMENT '一级(顶级)评论id',
+`comment` VARCHAR(150) NOT NULL,
+`u_id` INT NOT NULL COMMENT '用户id',
+`reply_u_id` INT NOT NULL COMMENT '被回复评论的用户id',
+`create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+`delete_at` DATETIME,
+UNIQUE INDEX `_c_id_5` (`c_id`),
+CONSTRAINT `_b_id_3` FOREIGN KEY (`c_id`) REFERENCES `comments` (`c_id`),
+CONSTRAINT `_u_id_3` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`),
+CONSTRAINT `_reply_u_id` FOREIGN KEY (`reply_u_id`) REFERENCES `users` (`u_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `users-collections` (
+`u_id` INT NOT NULL,
+`collect_id` INT NOT NULL,
+UNIQUE INDEX `u_collect_id` (`u_id`,`collect_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `collections` (
+`collect_id` INT AUTO_INCREMENT PRIMARY KEY,
+`u_id` INT NOT NULL,
+`b_id` INT NOT NULL,
+`create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+`delete_at` DATETIME,
+UNIQUE INDEX `_u_id_6` (`u_id`),
+CONSTRAINT `_b_id_6` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`),
+CONSTRAINT `_u_id_6` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `likes` (
+`u_id` INT NOT NULL,
+`b_id` INT NOT NULL,
+`create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+`delete_at` DATETIME,
+UNIQUE INDEX `_u_id_7` (`u_id`),
+UNIQUE INDEX `_b_id_7` (`b_id`),
+CONSTRAINT `_b_id_7` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`),
+CONSTRAINT `_u_id_7` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8;
+
+
+
+CREATE TABLE `log_record` (
+`u_id` INT NOT NULL,
+`b_id` INT NOT NULL,
+`chapter_id` INT NOT NULL,
+`create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+UNIQUE INDEX `_u_b_chapter_id` (`b_id`,`u_id`,`chapter_id`),
+CONSTRAINT `_b_id_8` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`),
+CONSTRAINT `_u_id_8` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+CREATE TABLE `tags` (
+`t_id`	INT AUTO_INCREMENT PRIMARY KEY,
+`t_level` INT COMMENT "TAG等级,1代表分类tag,2表示细分tag",
+`tag_name` VARCHAR(10) COMMENT "TAG名字",
+`create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+`delete_at` DATETIME ,
+`delete_id` INT COMMENT "这是删除人员id,如果是创建人员id则在一对多表中user_tag ",
+CONSTRAINT `_u_id_9` FOREIGN KEY (`delete_id`) REFERENCES `users` (`u_id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `users_tags` (
+`u_id` INT NOT NULL,
+`t_id` INT NOT NULL,
+CONSTRAINT `_u_id_10` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`),
+CONSTRAINT `_t_id_10` FOREIGN KEY (`t_id`) REFERENCES `tags` (`t_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+CREATE TABLE `tag_benzi` (
+`u_id` INT NOT NULL,
+`b_id` INT NOT NULL,
+CONSTRAINT `_u_id_11` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`),
+CONSTRAINT `_b_id_11` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

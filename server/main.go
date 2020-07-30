@@ -1,11 +1,17 @@
 package main
 
-import "pika/server/servers"
+import (
+	"flag"
 
-
-
+	"pika/server/servers"
+)
 
 func main() {
-	servers.Run("")
-}
 
+	var addr string
+	flag.StringVar(&addr, "addr", "9999", "服务器端口,默认9999")
+	flag.Parse()
+
+	addr = ":" + addr
+	servers.Run(addr)
+}
