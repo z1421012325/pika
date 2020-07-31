@@ -14,8 +14,12 @@ const (
 const (
 	USERNAME_REPEAT_ERR   = "账号已存在"
 	USERNAME_PASSWORD_ERR = "账号或者密码错误"
-	PARAM_BIND_ERR        = "参数错误"
+	PARAM_BIND_ERR        = "参数异常"
+	LOGIN_ERR			  = "登录异常"
+	REGISTRY_ERR 		  = "注册异常"
 )
+
+
 
 // 返回数据模型
 type ResData struct {
@@ -25,6 +29,14 @@ type ResData struct {
 	// omitempy 该列数据没有则json时不序列化,string表示序列化后显示为字符串
 	Data []interface{} `json:"data,omitempy,string"`
 }
+
+
+
+
+
+
+
+
 
 type DataMap struct {
 	maps map[string]interface{}

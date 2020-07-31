@@ -9,6 +9,7 @@ CREATE TABLE `comments` (
 `b_id` INT NOT NULL COMMENT '本子id',
 `u_id` INT NOT NULL COMMENT '用户id',
 `comment` VARCHAR(150) NOT NULL,
+`agree` INT DEFAULT 0,
 `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
 `delete_at` DATETIME,
 UNIQUE INDEX `_c_id_4` (`c_id`),
@@ -23,6 +24,7 @@ type Comment struct {
 	Bid      int       `gorm:"column:b_id" json:"b_id,omitempty"`
 	Uid      int       `gorm:"column:u_id" json:"u_id,omitempty"`
 	Comment  string    `gorm:"column:comment" json:"comment,omitempty"`
+	Agree 	 int	   `gorm:"column:agree" json:"agree,omitempty"`
 	CreateAt time.Time `gorm:"column:create_at" json:"create_at,omitempty"`
 	DeleteAt time.Time `gorm:"column:delete_id" json:"delete_id,omitempty"`
 }

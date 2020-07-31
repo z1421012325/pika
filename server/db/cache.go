@@ -70,12 +70,20 @@ func (r RedisPool) DelList(k string, v interface{}) (int64, error) {
 }
 
 // zset   zadd
-func (r RedisPool) SetOrderList(k string, Member interface{}) (int64, error) {
-	m := redis.Z{
-		Score:  1,
-		Member: Member,
+func (r RedisPool) SetOrderList(k string, Members ...interface{}) (int64, error) {
+	Maps := make([]redis.Z,1)
+	for _,value := range Members{
+		m := redis.Z{
+			Score:  1,
+			Member: value,
+		}
+		Maps = append(Maps,m)
 	}
-	return r.ZAdd(k, m).Result()
+	//m := redis.Z{
+	//	Score:  1,
+	//	Member: Member,
+	//}
+	return r.ZAdd(k, Maps...).Result()
 }
 
 // 获取分数值

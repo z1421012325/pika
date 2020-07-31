@@ -9,6 +9,7 @@ CREATE TABLE `reply_comments` (
 `reply_id` INT AUTO_INCREMENT PRIMARY KEY COMMENT '回复id',
 `c_id` INT COMMENT '一级(顶级)评论id',
 `comment` VARCHAR(150) NOT NULL,
+`agree` INT DEFAULT 0,
 `u_id` INT NOT NULL COMMENT '用户id',
 `reply_u_id` INT NOT NULL COMMENT '被回复评论的用户id',
 `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -24,6 +25,7 @@ type ReplyComments struct {
 	ReplyId  int       `gorm:"column:reply_id" json:"reply_id,omitempty"`
 	Cid      int       `gorm:"column:c_id" json:"c_id,omitempty"`
 	Comment  string    `gorm:"column:comment" json:"comment,omitempty"`
+	Agree 	 int	   `gorm:"column:agree" json:"agree,omitempty"`
 	Uid      int       `gorm:"column:u_id" json:"u_id,omitempty"`
 	ReplyUid int       `gorm:"column:reply_u_id" json:"reply_uid,omitempty"`
 	CreateAt time.Time `gorm:"column:create_at" json:"create_at,omitempty"`
