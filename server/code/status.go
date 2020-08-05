@@ -8,6 +8,12 @@ const (
 	FAILED_CODE = 10001
 	// 参数错误
 	PARAM_BIND_CODE = 20001
+	// 添加错误
+	ADD_ERR_CODE  = 10007
+	// 更新异常
+	UPLOAD_ERR_CODE = 10008
+	// 删除异常
+	DEL_ERR_code = 10009
 )
 
 // 异常信息,错误信息,成功信息
@@ -17,6 +23,7 @@ const (
 	PARAM_BIND_ERR        = "参数异常"
 	LOGIN_ERR			  = "登录异常"
 	REGISTRY_ERR 		  = "注册异常"
+	SEARCH_ERR			  = "查询异常"
 )
 
 

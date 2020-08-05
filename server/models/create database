@@ -34,6 +34,7 @@ CREATE TABLE `benzi` (
 `title` VARCHAR(100) NOT NULL,
 `b_cover` VARCHAR(255) NOT NULL,
 `author` VARCHAR(20) DEFAULT NULL,
+-- `tag` VARCHAR(100) NOT NULL COMMENT '二级tag 以,划分  ',
 `upload_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间  ',
 `updata_at` DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更行时间  ',
 `delete_at` DATETIME COMMENT '删除时间  ',
@@ -54,6 +55,8 @@ CREATE TABLE `benzi_img` (
 `b_url` VARCHAR(255) NOT NULL,
 `chapter_id` INT DEFAULT 0 COMMENT '章节id',
 `chapter_name` VARCHAR(10) DEFAULT "第一话" COMMENT '章节名',
+`create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+`delete_at` DATETIME ,
 CONSTRAINT `_b_id` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -98,22 +101,22 @@ CONSTRAINT `_reply_u_id` FOREIGN KEY (`reply_u_id`) REFERENCES `users` (`u_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `users-collections` (
+CREATE TABLE `users_collections` (
 `u_id` INT NOT NULL,
-`collect_id` INT NOT NULL,
-UNIQUE INDEX `u_collect_id` (`u_id`,`collect_id`)
+`b_id` INT NOT NULL,
+`create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+`delete_at` DATETIME,
+CONSTRAINT `_b_id_111` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`),
+CONSTRAINT `_u_id_111` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 CREATE TABLE `collections` (
 `collect_id` INT AUTO_INCREMENT PRIMARY KEY,
-`u_id` INT NOT NULL,
 `b_id` INT NOT NULL,
 `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
 `delete_at` DATETIME,
 UNIQUE INDEX `_u_id_6` (`u_id`),
 CONSTRAINT `_b_id_6` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`),
-CONSTRAINT `_u_id_6` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8;
 
 
@@ -122,8 +125,6 @@ CREATE TABLE `likes` (
 `b_id` INT NOT NULL,
 `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
 `delete_at` DATETIME,
-UNIQUE INDEX `_u_id_7` (`u_id`),
-UNIQUE INDEX `_b_id_7` (`b_id`),
 CONSTRAINT `_b_id_7` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`),
 CONSTRAINT `_u_id_7` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8;
@@ -143,30 +144,18 @@ CONSTRAINT `_u_id_8` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`)
 
 
 
-CREATE TABLE `tags` (
+CREATE TABLE `classify_tag` (
 `t_id`	INT AUTO_INCREMENT PRIMARY KEY,
+`b_id`  INT NUT NULL COMMENT "本子id",
 `t_level` INT COMMENT "TAG等级,1代表分类tag,2表示细分tag",
 `tag_name` VARCHAR(10) COMMENT "TAG名字",
 `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
 `delete_at` DATETIME ,
 `delete_id` INT COMMENT "这是删除人员id,如果是创建人员id则在一对多表中user_tag ",
+CONSTRAINT `_b_id_9` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`),
 CONSTRAINT `_u_id_9` FOREIGN KEY (`delete_id`) REFERENCES `users` (`u_id`)
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `users_tags` (
-`u_id` INT NOT NULL,
-`t_id` INT NOT NULL,
-CONSTRAINT `_u_id_10` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`),
-CONSTRAINT `_t_id_10` FOREIGN KEY (`t_id`) REFERENCES `tags` (`t_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
-
-CREATE TABLE `tag_benzi` (
-`u_id` INT NOT NULL,
-`b_id` INT NOT NULL,
-CONSTRAINT `_u_id_11` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`),
-CONSTRAINT `_b_id_11` FOREIGN KEY (`b_id`) REFERENCES `benzi` (`b_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;

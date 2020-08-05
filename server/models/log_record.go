@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"pika/server/db"
+	"time"
+)
 
 // 观看记录
 /*
@@ -25,4 +28,13 @@ type LogRecord struct {
 
 func (b LogRecord) TableName() string {
 	return "log_record"
+}
+
+
+// 根据本子id与用户id去查询用户历史记录章节id,  pass > 并在benzi_img表中查询 之后再次更新历史记录
+func RecordQueryAndUpRecord(uid string,bid int,in interface{}) error {
+
+	sql1 := "SET @chapter_id = (SELECT chapter_id FROM log_record WHERE u_id = ? AND b_id = ?)"
+	sql2 := "SELECT img_id,b_id,b_url,chapter_id FROM benzi_img WHERE chapter_id = @chapter_id ORDER BY img_id ASC"
+	return db.SDB.Exec(sql1,uid,bid).Raw(sql2).Scan(&in).Error
 }

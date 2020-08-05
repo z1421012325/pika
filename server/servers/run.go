@@ -4,6 +4,7 @@ import (
 	// init
 	_ "pika/config"
 	_ "pika/server/db"
+	_ "pika/tools"
 
 	handler "pika/server/handlers"
 	"pika/server/middleware"
@@ -34,10 +35,10 @@ func Run(address string) {
 
 		// /user/collection 查询收藏本子
 		userGroup.GET("/collection", handler.UserCollection)
-		// /user/commits		查询用户评论
-		userGroup.GET("/commits", handler.UserCommits)
-		// /user/commit/reply		查询层级评论的回复评论
-		userGroup.GET("/commit/reply", handler.UserCommitReply)
+		// /user/comments		查询用户评论
+		userGroup.GET("/comments", handler.UserComments)
+		// /user/comment/reply		查询层级评论的回复评论
+		userGroup.GET("/comment/reply", handler.UserCommentReply)
 		// /user/info 		查询用户信息
 		userGroup.GET("/info", handler.UserInfo)
 
@@ -48,32 +49,35 @@ func Run(address string) {
 	// 本子
 	noteBookGroup := server.Group("/benzi")
 	{
-		// /benzi/sign 签名url
+		// /benzi/create/storage  创建本子仓库
+		noteBookGroup.POST("/create/storage",handler.CreateBenziStorage)
+
+		// /benzi/sign 发放签名url
 		noteBookGroup.POST("/sign", handler.SignUploadUrl)
-		//  /benzi/upload 上传本子
+		//  /benzi/upload 保存本子图片url
 		noteBookGroup.POST("/upload", handler.Upload)
+
+
+
 		// /benzi/del 删除本子
 		noteBookGroup.DELETE("/del", handler.DelBenzi)
-
 		// /benzi/add/like 点赞本子
 		noteBookGroup.POST("/add/like", handler.AddLike)
 		// /benzi/del/like删除点赞
 		noteBookGroup.DELETE("/del/like", handler.DelLike)
-
 		// /benzi/add/collection  添加收藏
 		noteBookGroup.POST("/add/collection", handler.AddCollection)
 		// /benzi/del/collection  删除收藏
 		noteBookGroup.DELETE("/del/collection", handler.DelCollection)
-
 		// 查询本子id  	返回数据含有观看记录,是否点赞,收藏,点赞数,评论数
 		// /benzi/b_id=4513213
 		noteBookGroup.GET("/", handler.SearchBenzi) // query参数 b_id
 		// /benzi/id   本子图片
 		noteBookGroup.GET("/id", handler.BenziImage) // query参数 b_id
-		// /benzi/insert/commit  	本子中添加评论
-		noteBookGroup.POST("/insert/commit", handler.InsertCommit)
-		// /benzi/query/commit		查询本子评论
-		noteBookGroup.GET("/query/commit", handler.QueryCommit)
+		// /benzi/insert/comment  	本子中添加评论
+		noteBookGroup.POST("/insert/comment", handler.InsertComment)
+		// /benzi/query/comment		查询本子评论
+		noteBookGroup.GET("/query/comment", handler.QueryComment)
 
 	}
 

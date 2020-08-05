@@ -101,3 +101,9 @@ func (u *User)RegistryUser(nickname string) error {
 	sql := "INSERT INTO users (nickname,username,pswd,grade_level,exec_pass) VALUES (?,?,?,?,?)"
 	return db.SDB.Raw(sql,nickname,u.Username,u.PassWord,u.GradeLevel,u.ExecPaas).Error
 }
+
+
+// 查询用户信息
+func QueryUserInfo(uid string,in interface{}) error{
+	return db.SDB.Where("uid = ? AND delete_at IS NULL ",uid).First(&in).Error
+}

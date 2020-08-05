@@ -5,8 +5,7 @@ import "time"
 // 收藏本子
 /*
 CREATE TABLE `collections` (
-`collect_id` INT AUTO_INCREMENT PRIMARY KEY,
-`u_id` INT NOT NULL,
+`collect_id` INT AUTO_INCREMENT PRIMARY KEY,- > PASS
 `b_id` INT NOT NULL,
 `create_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
 `delete_at` DATETIME,
@@ -18,7 +17,6 @@ CONSTRAINT `_u_id_6` FOREIGN KEY (`u_id`) REFERENCES `users` (`u_id`)
 type Collection struct {
 	CollectId int       `gorm:"column:collect_id" json:"collect_id,omitempty"`
 	Bid       int       `gorm:"column:b_id" json:"b_id,omitempty"`
-	Uid       int       `gorm:"column:u_id" json:"u_id,omitempty"`
 	CreateAt  time.Time `gorm:"column:create_at" json:"create_at,omitempty"`
 	DeleteAt  time.Time `gorm:"column:delete_id" json:"delete_id,omitempty"`
 }

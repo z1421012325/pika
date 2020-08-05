@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"pika/server/db"
+	"time"
+)
 
 // 评论
 /*
@@ -25,10 +28,41 @@ type Comment struct {
 	Uid      int       `gorm:"column:u_id" json:"u_id,omitempty"`
 	Comment  string    `gorm:"column:comment" json:"comment,omitempty"`
 	Agree 	 int	   `gorm:"column:agree" json:"agree,omitempty"`
-	CreateAt time.Time `gorm:"column:create_at" json:"create_at,omitempty"`
-	DeleteAt time.Time `gorm:"column:delete_id" json:"delete_id,omitempty"`
+	CreateAt *time.Time `gorm:"column:create_at" json:"create_at,omitempty"`
+	DeleteAt *time.Time `gorm:"column:delete_id" json:"delete_id,omitempty"`
 }
 
 func (b Comment) TableName() string {
 	return "comments"
 }
+
+
+// 添加评论
+func AddBenziComment(uid string,bid int,comment string) error {
+	sql := "INSERT INTO comments (b_id,u_id,comment) VALUES (?,?,?)"
+	return db.SDB.Exec(sql,bid,uid,comment).Error
+}
+
+// 根据本子id查询评论
+func QueryBenziComment(bid int,page,number int64,in interface{}) error {
+	sql := "SELECT u.u_id,u.nickname,u.username,u.grade_level,c.* " +
+		"FROM " +
+		"users AS u JOIN comments AS c ON u.u_id = c.u_id" +
+		"WHERE c.b_id = ? AND delete_id IS NULL ORDER BY create_at DESC LIMIT ?,?"
+
+	return  db.SDB.Raw(sql,bid,page*number,number).Scan(&in).Error
+}
+
+
+
+
+
+
+
+
+
+// 查询用户一级评论
+func QueryUserComments(in []Comment,uid string,page,number int64) error {
+	return db.SDB.Where("u_id = ? AND delete_id IS NULL ORDER BY create_at DESC LIMIT ?,?",uid,page*number,number).Find(&in).Error
+}
+

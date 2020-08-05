@@ -11,6 +11,14 @@ import (
 )
 
 
+type SearchPageReqData struct {
+	Page int64			`json:"page" form:"page" binding:"default=1"`
+	Number int64			`json:"number" form:"number" binding:"default=20"`
+}
+
+
+// -------------------------------/user/login --------------------------------------------
+
 type UserLoginReqData struct {
 	//Username string		`json:"username" form:"username" binding:"required,min=2,max=20"`
 	//PassWord string		`json:"password" form:"password" binding:"required,min=5,max=30"`
@@ -25,12 +33,7 @@ func UserLogin(c *gin.Context){
 
 	var req UserLoginReqData
 	if err := c.ShouldBind(&req); err != nil{
-		c.JSON(
-			201,
-			r.NewManualFailedData(
-				r.FAILED_CODE,
-				"param required bind err",
-				r.PARAM_BIND_ERR))
+		r.GinParamBindErrorResult(c)
 		return
 	}
 
@@ -124,15 +127,15 @@ func UserRegistry(c *gin.Context){
 
 
 type UserCollectionReqData struct {
-	//Token string  `json:"token"`
-	Bid int		`json:"bid" form:"bid" binding:"required"`
-
 	// 拦截器拦截token解析并在header中设置了UID 试试结构体中用gin的 ShouldBind 映射
 	//Uid int 	`json:"UID" form:"UID" binding:"required"`
+	SearchPageReqData
 }
 
 type UserCollectionResData struct {
 	// models
+	model.BenZi
+	model.Collection
 }
 
 // /user/collection 查询收藏本子
@@ -142,83 +145,124 @@ func UserCollection(c *gin.Context){
 	 */
 	//c.ShouldBind()
 
-	uid := c.Request.Header.Get("UID")
+	uid := c.Request.Header.Get(config.SET_USER_ID_NAME)
 	fmt.Println(uid)
 
 	var req UserCollectionReqData
 	if err := c.ShouldBindQuery(&req);err!=nil{
-		c.JSON(201,r.ParamBindErrorResult())
+		r.GinParamBindErrorResult(c)
 		return
 	}
 
-
-
-
+	var res UserCollectionResData
+	if err := model.QueryUserCollectionBenzis(&res,uid,req.Page,req.Number);err != nil{
+		c.JSON(201,r.SearchErrorResult())
+		return
+	}
+	c.JSON(200,r.NewSuccessData("",res))
 }
 
 
 
 
 
-// ----------------------------/user/commit	 查询用户评论------------------------------------
-type UserCommitsReqData struct {
-	UserCollectionReqData
+// ----------------------------/user/commit	 查询用户所有评论------------------------------------
+type UserCommentReqData struct {
+	SearchPageReqData
 }
-type UserCommitsResData struct {
+type UserCommentResData struct {
+	Comments []model.Comment
 }
-func UserCommits(c *gin.Context){
-
+func UserComments(c *gin.Context){
 	/*
 		用户id在token中或者在headers中
 	*/
+	uid := c.Request.Header.Get(config.SET_USER_ID_NAME)
+	var req UserCommentReqData
+	if err := c.ShouldBindJSON(&req);err != nil{
+		r.GinParamBindErrorResult(c)
+		return
+	}
 
+	var res UserCommentResData
+	if err := model.QueryUserComments(res.Comments,uid,req.Page,req.Number);err!=nil{
+		c.JSON(201,r.SearchErrorResult())
+		return
+	}
+	c.JSON(200,r.NewSuccessData("",res))
 }
 
 
 
 // ----------------------/user/commit/reply 查询层级评论的回复评论------------------------
 type UserCommitReplyReqData struct {
-	UserCollectionReqData
-	CId 	int `json:"cid" form:"cid" binding:"required"`
+	SearchPageReqData
+	Cid int64		`json:"c_id" form:"c_id" binding:"required"`
+
 }
-type UserCommitReplyResData struct {
+type UserCommentReplyResData struct {
+	model.User
+	model.ReplyComments
 }
-func UserCommitReply(c *gin.Context){
+func UserCommentReply(c *gin.Context){
 
 	/*
 		用户id在token中或者在headers中
 	*/
+	var req UserCommitReplyReqData
+	if err := c.ShouldBindJSON(&req);err != nil{
+		r.GinParamBindErrorResult(c)
+		return
+	}
 
+	var res []UserCommentReplyResData
+	if err:= model.QueryUserReplyComments(req.Cid,req.Page,req.Number,res);err!=nil{
+		c.JSON(201,r.SearchErrorResult())
+		return
+	}
+	c.JSON(200,r.NewSuccessData("",res))
 }
+
+
+
+
 
 
 // ----------------------/user/info 	查询用户信息------------------------
 type UserInfoReqData struct {
-	UserCollectionReqData
 }
 type UserInfoResData struct {
+	model.User
 }
 func UserInfo(c *gin.Context){
 
 	/*
 		用户id在token中或者在headers中
 	*/
+	uid := c.Request.Header.Get(config.SET_USER_ID_NAME)
 
+	var res UserInfoReqData
+	if err:=model.QueryUserInfo(uid,res);err != nil{
+		c.JSON(201,r.SearchErrorResult())
+		return
+	}
+	c.JSON(200,r.NewSuccessData("",res))
 }
 
 
 
 // ----------------------/user/out	退出登录------------------------
 type UserOutReqData struct {
-	UserCollectionReqData
 }
 type UserOutResData struct {
 }
 func UserOut(c *gin.Context){
 
 	/*
-		用户id在token中或者在headers中
+		由于没有设置token唯一值(redis缓存...),所以直接返回由前端删除token或者后端更改token
 	*/
+	c.Request.Header.Set(config.SET_TOKEN_NAME,"")
 
+	c.JSON(200,r.NewManualSuccessData(0,"user logout!",nil))
 }
 
