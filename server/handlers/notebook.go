@@ -7,23 +7,16 @@ import (
 	model "pika/server/models"
 	"pika/tools"
 	"strconv"
+	re "pika/server/struct"
+
 )
 
 // ------------/benzi/create/storage  创建本子仓库   ----------------------
-type CreateBenziStorageReqData struct {
-	Title string		`json:"title" form:"title" binding:"required"`	// 标题
-	BCover string		`json:"b_cover" form:"b_cover" binding:"required"`	// 封面
-	Author string		`json:"author" form:"author" binding:"required"`	// 作者
-	Type  []string		`json:"types" form:"types" binding:"required"`		// 分类
-	Tags []string 		`json:"tags" form:"tags"`		// 标签
-}
-type CreateBenziStorageResData struct {
 
-}
 func CreateBenziStorage(c *gin.Context){
 
 	uid := c.Request.Header.Get(config.SET_USER_ID_NAME)
-	var req CreateBenziStorageReqData
+	var req re.CreateBenziStorageReqData
 	if err := c.ShouldBind(&req);err!=nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -46,17 +39,13 @@ func CreateBenziStorage(c *gin.Context){
 
 
 // ------------------/benzi/sign 签名url   ------------------------
-type SignReqData struct {
-	Files []string	`json:"files" form:"files" binding:"required"`	// 文件名
-}
-type SignResData struct {
-}
+
 func SignUploadUrl(c *gin.Context){
 	/*
 		aliyun oss or 自建ftp服务
 	 */
 	// todo oss 环境变量
-	var req SignReqData
+	var req re.SignReqData
 	if err := c.ShouldBind(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -78,19 +67,12 @@ func SignUploadUrl(c *gin.Context){
 
 
 // ------------------/benzi/upload 上传本子   ------------------------
-type uploadReqData struct {
-	ImgUrls []string    `json:"img_url" form:"img_url" binding:"required"`	// 需要上传的url的字符串(经过签名)
-	Bid 	int			`json:"bid" form:"bid" binding:"required"`		// 本子id
-	Chapter string 		`json:"chapter" form:"chapter" binding:"default=第一章"`	// 章节名
-}
 
-type uploadResData struct {
-}
 
 func Upload(c *gin.Context){
 
 	uid := c.Request.Header.Get(config.SET_USER_ID_NAME)
-	var req uploadReqData
+	var req re.UploadReqData
 	if err := c.ShouldBind(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -116,16 +98,12 @@ func Upload(c *gin.Context){
 
 
 // ------------------/benzi/del 删除本子   ------------------------
-type DelReqData struct {
-	Bid 	int			`json:"bid" form:"bid" binding:"required"`		// 本子id
-}
-type DelResData struct {
-}
+
 
 func DelBenzi(c *gin.Context){
 
 	uid := c.Request.Header.Get(config.SET_USER_ID_NAME)
-	var req DelReqData
+	var req re.DelReqData
 	if err := c.ShouldBind(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -145,16 +123,11 @@ func DelBenzi(c *gin.Context){
 
 
 // ------------------/benzi/add/like 点赞本子   ------------------------
-type AddLikeReqData struct {
-	Bid 	int			`json:"bid" form:"bid" binding:"required"`		// 本子id
-}
-type AddLikeResData struct {
-}
 
 func AddLike(c *gin.Context){
 
 	uid := c.Request.Header.Get(config.SET_TOKEN_NAME)
-	var req AddLikeReqData
+	var req re.AddLikeReqData
 	if err := c.ShouldBind(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -171,16 +144,12 @@ func AddLike(c *gin.Context){
 
 
 // ------------------/benzi/del/like  删除点赞  ------------------------
-type DelLikeReqData struct {
-	Bid 	int			`json:"bid" form:"bid" binding:"required"`		// 本子id
-}
-type DelLikeResData struct {
-}
+
 
 func DelLike(c *gin.Context){
 
 	uid := c.Request.Header.Get(config.SET_TOKEN_NAME)
-	var req DelLikeReqData
+	var req re.DelLikeReqData
 	if err := c.ShouldBind(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -196,15 +165,11 @@ func DelLike(c *gin.Context){
 
 
 // ------------------/benzi/add/collection  添加收藏 ------------------------
-type AddCollectionReqData struct {
-	Bid 	int			`json:"bid" form:"bid" binding:"required"`		// 本子id
-}
-type AddCollectionResData struct {
-}
+
 func AddCollection(c *gin.Context){
 
 	uid := c.Request.Header.Get(config.SET_TOKEN_NAME)
-	var req AddCollectionReqData
+	var req re.AddCollectionReqData
 	if err := c.ShouldBind(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -220,16 +185,11 @@ func AddCollection(c *gin.Context){
 
 
 // ------------------/benzi/del/collection  删除收藏  ------------------------
-type DelCollectionReqData struct {
-	Bid 	int			`json:"bid" form:"bid" binding:"required"`		// 本子id
-}
-type DelCollectionResData struct {
-}
 
 func DelCollection(c *gin.Context){
 
 	uid := c.Request.Header.Get(config.SET_TOKEN_NAME)
-	var req DelCollectionReqData
+	var req re.DelCollectionReqData
 	if err := c.ShouldBind(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -245,23 +205,16 @@ func DelCollection(c *gin.Context){
 
 
 // ------------------/benzi/  查询本子id query参数 b_id   ------------------------
-type SearchBenziReqData struct {
-	Bid 	int			`json:"bid" form:"bid" binding:"required"`		// 本子id
-}
-type SearchBenziResData struct {
-	model.BenZi			// todo 测试gorm映射到该结构体上
-	Chapter []model.BenZiImg		`gorm:"column:chapter"`
-	Tags []model.Tags			`gorm:"column:tags"`
-}
+
 
 func SearchBenzi(c *gin.Context){
-	var req SearchBenziReqData
+	var req re.SearchBenziReqData
 	if err := c.ShouldBindQuery(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
 	}
 
-	var res SearchBenziResData
+	var res re.SearchBenziResData
 	err := model.QueryBenzi(req.Bid,&res)
 	if err != nil {
 		r.SearchErrorResult()
@@ -282,24 +235,17 @@ func SearchBenzi(c *gin.Context){
 
 
 // ------------------/benzi/id   本子图片  ------------------------
-type BenziImageReqData struct {
-	Bid int		`json:"bid" form:"bid" binding:"required"`
-	//Record int	`json:"record" form:"record"`
-}
-type BenziImageResData struct {
-	model.BenZiImg
-}
 
 func BenziImage(c *gin.Context){
 
 	uid := c.Request.Header.Get(config.SET_TOKEN_NAME)
-	var req BenziImageReqData
+	var req re.BenziImageReqData
 	if err := c.ShouldBindQuery(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
 	}
 
-	var res []BenziImageResData
+	var res []re.BenziImageResData
 	err := model.RecordQueryAndUpRecord(uid,req.Bid,&res)
 	if err != nil {
 		r.SearchErrorResult()
@@ -318,21 +264,12 @@ func BenziImage(c *gin.Context){
 
 
 // ------------------/benzi/insert/commit  	本子中添加评论   ------------------------
-type InsertCommitReqData struct {
-	Bid int		`json:"bid" form:"bid"`
-	Comment  string    `json:"comment" form:"comment" binding:"required,max=150"`
 
-	Reply string `json:"reply" form:"reply"`		// 默认一级评论,有值则为二级评论
-	Cid int       `json:"cid" form:"cid"`
-	ReplyUid int   `json:"uid" form:"uid"`
-}
-type InsertCommitResData struct {
-}
 
 func InsertComment(c *gin.Context){
 	uid := c.Request.Header.Get(config.SET_TOKEN_NAME)
 	var err error
-	var req InsertCommitReqData
+	var req re.InsertCommitReqData
 	if err := c.ShouldBindQuery(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -352,29 +289,17 @@ func InsertComment(c *gin.Context){
 
 
 // ------------------/benzi/query/commit		查询本子评论   ------------------------
-type QueryCommitReqData struct {
-	Bid int		`json:"bid" form:"bid"`
 
-	Reply string `json:"reply" form:"reply"`	// 是否为二级评论查询
-	CId	int `json:"cid" form:"cid"`
-
-	SearchPageReqData
-}
-type QueryCommitResData struct {
-	model.Comment
-	model.ReplyComments
-	model.User
-}
 
 func QueryComment(c *gin.Context){
 
-	var req QueryCommitReqData
+	var req re.QueryCommitReqData
 	if err := c.ShouldBindQuery(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
 	}
 
-	var res []QueryCommitResData
+	var res []re.QueryCommitResData
 	var err error
 	if req.Reply == "" {
 		err = model.QueryBenziComment(req.Bid,req.Page,req.Number,&res)

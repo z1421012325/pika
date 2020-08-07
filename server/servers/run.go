@@ -81,18 +81,18 @@ func Run(address string) {
 
 	}
 
-	// tag标签
-	tagGroup := server.Group("/tag")
-	{
-		// /tag/add  添加tag
-		tagGroup.POST("/add", handler.TagAdd)
-		// /tag/del  删除tag
-		tagGroup.DELETE("/del", handler.TagDel)
-		// /tag/user/up 查看上传人添加的tag
-		tagGroup.GET("/user/up", handler.TagUserUp)
-		// /tag/all 查看所有tag
-		tagGroup.GET("/all", handler.TagAll)
-	}
+	// tag标签   pass 管理员等级以上手动增加,tag由上传人员另算
+	//tagGroup := server.Group("/tag")
+	//{
+	//	// /tag/add  添加tag
+	//	tagGroup.POST("/add", handler.TagAdd)
+	//	// /tag/del  删除tag
+	//	tagGroup.DELETE("/del", handler.TagDel)
+	//	// /tag/user/up 查看上传人添加的tag
+	//	tagGroup.GET("/user/up", handler.TagUserUp)
+	//	// /tag/all 查看所有tag
+	//	tagGroup.GET("/all", handler.TagAll)
+	//}
 
 	adminGroup := server.Group("/admin")
 	{
@@ -109,6 +109,14 @@ func Run(address string) {
 		adminGroup.GET("/query/user/info", handler.AdminQueryUserInfo)
 		// 获取用户,上传人,管理员信息	/admin/query/users
 		adminGroup.GET("/query/users", handler.AdminQueryUsers)
+
+
+		// /admin/add/classify  添加分类
+		adminGroup.POST("/add/classify", handler.AddClassify)
+		// /admin/del/classify  删除分类
+		adminGroup.DELETE("/del/classify", handler.DelClassify)
+		// /admin/all/classify 查看所有分类
+		adminGroup.GET("/all/classify", handler.AllClassify)
 	}
 
 	err := server.Run(address)

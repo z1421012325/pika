@@ -1,61 +1,50 @@
 package handlers
 
-import "github.com/gin-gonic/gin"
+import (
+	req "pika/server/struct"
+
+	"github.com/gin-gonic/gin"
+)
 
 
 
 
 // ------------------通过用户注册  /admin/verify/unregistry ------------------------
-type AdminVerifyUnregistryReqData struct {
-}
-type AdminVerifyUnregistryResData struct {
-}
-
 func AdminVerifyUnregistry(c *gin.Context){
+	var req req.AdminVerifyUnregistryReqData
 }
 
 
 
 // ------------------查看等待通过注册用户	/admin/query/unregistry ------------------------
-type AdminQueryUnregistryReqData struct {
-}
-type AdminQueryUnregistryResData struct {
-}
+
 
 func AdminQueryUnregistry(c *gin.Context){
+	var req req.AdminQueryUnregistryReqData
 }
 
 
 
 // ------------------冻结用户	/admin/frozen/user ------------------------
-type AdminFrozenUserReqData struct {
-}
-type AdminFrozenUserResData struct {
-}
 
 func AdminFrozenUser(c *gin.Context){
+	var req req.AdminFrozenUserReqData
 }
 
 
 
 // ------------------更改权限	/admin/change/grade ------------------------
-type AdminChangeGradeReqData struct {
-}
-type AdminChangeGradeResData struct {
-}
 
 func AdminChangeGrade(c *gin.Context){
+	var req req.AdminChangeGradeReqData
 }
 
 
 
 // ------------------获取用户,上传人,管理员列表	/admin/query/user/info ------------------------
-type AdminQueryUserInfoReqData struct {
-}
-type AdminQueryUserInfoResData struct {
-}
 
 func AdminQueryUserInfo(c *gin.Context){
+	var req req.AdminQueryUserInfoReqData
 }
 
 
@@ -67,6 +56,31 @@ type AdminQueryUsersResData struct {
 }
 
 func AdminQueryUsers(c *gin.Context){
+	var req req.AdminQueryUsersReqData
 }
 
 
+
+
+
+// ------------------ 添加分类 /admin/add/classify------------------------
+func AddClassify(c *gin.Context){
+	var req req.AddClassifyReqData
+
+}
+
+
+// ------------------ 删除分类 /admin/del/classify------------------------
+
+func DelClassify(c *gin.Context){
+	var req req.DelClassifyReqData
+
+}
+
+
+// -----------------查看分类,含增加人 /admin/all/classify-------------------------
+
+func AllClassify(c *gin.Context){
+	var req req.AllClassifyReqData
+
+}

@@ -117,6 +117,15 @@ func QueryBenzi(bid int,in interface{}) error {
 }
 
 
+// 根据搜索关键词查询本子  标题,作者,分类,tag
+func SearchKeyBenzi(key string,page,number int64, in interface{}) error {
+
+	// todo 未完成 先去把返回结果体弄去别的文件夹
+	db.SDB.Raw("SELECT ")
+
+
+}
+
 
 
 

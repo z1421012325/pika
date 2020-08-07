@@ -6,32 +6,21 @@ import (
 	model "pika/server/models"
 	"pika/tools"
 	"pika/config"
+	re "pika/server/struct"
 
 	"github.com/gin-gonic/gin"
 )
 
 
-type SearchPageReqData struct {
-	Page int64			`json:"page" form:"page" binding:"default=1"`
-	Number int64			`json:"number" form:"number" binding:"default=20"`
-}
 
 
 // -------------------------------/user/login --------------------------------------------
 
-type UserLoginReqData struct {
-	//Username string		`json:"username" form:"username" binding:"required,min=2,max=20"`
-	//PassWord string		`json:"password" form:"password" binding:"required,min=5,max=30"`
-	//// 登录等级
-	//Grade int			`json:"grade" form:"grade" binding:"required"`
 
-	// 参数字段 username,paswd,grade
-	model.User
-}
 // 登录
 func UserLogin(c *gin.Context){
 
-	var req UserLoginReqData
+	var req re.UserLoginReqData
 	if err := c.ShouldBind(&req); err != nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -73,17 +62,9 @@ func UserLogin(c *gin.Context){
 
 // --------------------------------/user/registry 用户注册---------------------------------
 
-type UserRegistryReqData struct {
-	//Username string	`json:"username" form:"username" binding:"required,min=2,max=20"`
-	//PassWord string	`json:"password" form:"password" binding:"required,min=5,max=30"`
-	Nickname string	`json:"nickname" form:"nickname" binding:"required,min=3,max=30"`
-	//Grade 	int 	`json:"grade" form:"grade"`
-
-	model.User
-}
 
 func UserRegistry(c *gin.Context){
-	var req UserRegistryReqData
+	var req re.UserRegistryReqData
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(201,r.NewManualFailedData(r.FAILED_CODE,"",r.PARAM_BIND_ERR))
 		return
@@ -126,11 +107,6 @@ func UserRegistry(c *gin.Context){
 // --------------------/user/collection 查询收藏本子------------------------------
 
 
-type UserCollectionReqData struct {
-	// 拦截器拦截token解析并在header中设置了UID 试试结构体中用gin的 ShouldBind 映射
-	//Uid int 	`json:"UID" form:"UID" binding:"required"`
-	SearchPageReqData
-}
 
 type UserCollectionResData struct {
 	// models
@@ -148,7 +124,7 @@ func UserCollection(c *gin.Context){
 	uid := c.Request.Header.Get(config.SET_USER_ID_NAME)
 	fmt.Println(uid)
 
-	var req UserCollectionReqData
+	var req re.UserCollectionReqData
 	if err := c.ShouldBindQuery(&req);err!=nil{
 		r.GinParamBindErrorResult(c)
 		return
@@ -167,24 +143,19 @@ func UserCollection(c *gin.Context){
 
 
 // ----------------------------/user/commit	 查询用户所有评论------------------------------------
-type UserCommentReqData struct {
-	SearchPageReqData
-}
-type UserCommentResData struct {
-	Comments []model.Comment
-}
+
 func UserComments(c *gin.Context){
 	/*
 		用户id在token中或者在headers中
 	*/
 	uid := c.Request.Header.Get(config.SET_USER_ID_NAME)
-	var req UserCommentReqData
+	var req re.UserCommentReqData
 	if err := c.ShouldBindJSON(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
 	}
 
-	var res UserCommentResData
+	var res re.UserCommentResData
 	if err := model.QueryUserComments(res.Comments,uid,req.Page,req.Number);err!=nil{
 		c.JSON(201,r.SearchErrorResult())
 		return
@@ -195,27 +166,19 @@ func UserComments(c *gin.Context){
 
 
 // ----------------------/user/commit/reply 查询层级评论的回复评论------------------------
-type UserCommitReplyReqData struct {
-	SearchPageReqData
-	Cid int64		`json:"c_id" form:"c_id" binding:"required"`
 
-}
-type UserCommentReplyResData struct {
-	model.User
-	model.ReplyComments
-}
 func UserCommentReply(c *gin.Context){
 
 	/*
 		用户id在token中或者在headers中
 	*/
-	var req UserCommitReplyReqData
+	var req re.UserCommitReplyReqData
 	if err := c.ShouldBindJSON(&req);err != nil{
 		r.GinParamBindErrorResult(c)
 		return
 	}
 
-	var res []UserCommentReplyResData
+	var res []re.UserCommentReplyResData
 	if err:= model.QueryUserReplyComments(req.Cid,req.Page,req.Number,res);err!=nil{
 		c.JSON(201,r.SearchErrorResult())
 		return
@@ -229,11 +192,7 @@ func UserCommentReply(c *gin.Context){
 
 
 // ----------------------/user/info 	查询用户信息------------------------
-type UserInfoReqData struct {
-}
-type UserInfoResData struct {
-	model.User
-}
+
 func UserInfo(c *gin.Context){
 
 	/*
@@ -241,7 +200,7 @@ func UserInfo(c *gin.Context){
 	*/
 	uid := c.Request.Header.Get(config.SET_USER_ID_NAME)
 
-	var res UserInfoReqData
+	var res re.UserInfoReqData
 	if err:=model.QueryUserInfo(uid,res);err != nil{
 		c.JSON(201,r.SearchErrorResult())
 		return
@@ -252,10 +211,7 @@ func UserInfo(c *gin.Context){
 
 
 // ----------------------/user/out	退出登录------------------------
-type UserOutReqData struct {
-}
-type UserOutResData struct {
-}
+
 func UserOut(c *gin.Context){
 
 	/*
